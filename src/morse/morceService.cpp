@@ -13,6 +13,12 @@ void setLeds(bool state) {
 
 void blinkMorse(char letter) {
 
+  if (letter == ' ' || letter == '\n') {
+    delay(UNITTIME * 7);
+    Serial.print(" / ");
+    return;
+  }
+
   if (islower(letter)) {
       letter -= 'a';
   } else if (isupper(letter)) {
@@ -21,24 +27,26 @@ void blinkMorse(char letter) {
       letter -= 22;
   }
 
-  uint16_t encodedMorse = morseCodeMapping[letter];
-  uint16_t mask = 0b1100000000000000;
-  uint16_t maskedMorse = encodedMorse & mask;
+  uint16_t encodedMorse = morseCodeMapping[(int)letter];
+  #define DECODE_MASK 0b1100000000000000;
+  uint16_t maskedMorse = encodedMorse & DECODE_MASK;
+
   while (maskedMorse != 0) {
+    setLeds(true);
     if (maskedMorse == 0b1100000000000000) {
-      setLeds(true);
       delay(UNITTIME * 3);
+      Serial.print("-");
     } else if (maskedMorse == 0b1000000000000000) {
-      setLeds(true);
       delay(UNITTIME);
+      Serial.print(".");
     }
     setLeds(false);
     encodedMorse = encodedMorse << 2;
-    maskedMorse = encodedMorse & mask;
+    maskedMorse = encodedMorse & DECODE_MASK;
     delay(UNITTIME);
   }
-
-  delay(UNITTIME * 2);
+  Serial.print(" "); 
+  delay(UNITTIME * 3);
 }
 
 
