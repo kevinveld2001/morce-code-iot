@@ -3,21 +3,13 @@
 #include <WiFiClient.h>
 #include <ArduinoMqttClient.h>
 #include <secrets.h>
+#include <morse/morceService.h>
 
 void onMqttMessage(int messageSize);
 
 int status = WL_IDLE_STATUS;
 WiFiSSLClient client;
 MqttClient mqttClient(client);
-
-bool ledState = false;
-
-void setLeds(bool state) {
-  digitalWrite(LED_BUILTIN, ledState);
-  digitalWrite(12, ledState);
-  digitalWrite(11, ledState);
-  digitalWrite(10, ledState);
-}
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
@@ -63,7 +55,9 @@ void onMqttMessage(int messageSize) {
 
   // use the Stream interface to print the contents
   while (mqttClient.available()) {
-    Serial.print((char)mqttClient.read());
+    char letter = (char)mqttClient.read();
+    Serial.print(letter);
+    blinkMorse(letter);
   }
   Serial.println();
   Serial.println();
